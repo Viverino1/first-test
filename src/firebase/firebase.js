@@ -2,6 +2,8 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
+import { getFirestore, collection, doc, setDoc } from "firebase/firestore";
+import { Info } from "react-bootstrap-icons";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB4aCc_kQxND2WJUv1klAM2XQ-H__SBpME",
@@ -17,6 +19,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 const provider = new GoogleAuthProvider();
 
@@ -32,4 +35,22 @@ function handleSignOutClick(){
     auth.signOut();
 }
 
-export { handleAuthClick, handleSignOutClick }
+function saveEvent(eventID, topic, title, sourceName, sourceLink, contention, evidence){
+    if(!title || !sourceName || !sourceLink || !contention || !evidence){
+        console.log("Empty fields")
+        //return;
+    }
+
+    const cardsRef = collection(db, "public", "publicCards", topic);
+
+    setDoc(doc(cardsRef, eventID), {
+        title: title,
+        sourceName: sourceName,
+        sourceLink: sourceLink,
+        contention: contention,
+        evidence: evidence,
+        eventID: eventID,
+    })
+}
+
+export { handleAuthClick, handleSignOutClick, saveEvent, db }
