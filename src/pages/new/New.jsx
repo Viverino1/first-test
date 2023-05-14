@@ -5,7 +5,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { setEditCard } from "./newSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { setTopic } from "../../app/appSlice";
+import { refreshCards, setTopic } from "../../app/appSlice";
 
 const New = () => {
     const dispatch = useDispatch();
@@ -24,7 +24,6 @@ const New = () => {
     const topics = useSelector(state => state.app.topics);
 
     useEffect(() => {
-
         if(editCard.topic && editCard.cardID){
             getDoc(doc(db, "public", "publicCards", editCard.topic, String(editCard.cardID))).then(result => {
                 const data = result.data();
@@ -36,14 +35,13 @@ const New = () => {
                 dispatch(setTopic(data.topic));
                 setCardID(data.cardID);
 
-                dispatch(setEditCard({}))
+                dispatch(setEditCard({}));
             })
         }
     }, [])
 
     function save(){
         if(cardID){
-            console.log("edit")
             setDoc(doc(db, "public", "publicCards", topic, String(cardID)), {
                 topic: topic,
                 title: title,
@@ -52,9 +50,9 @@ const New = () => {
                 contention: contention,
                 evidence: evidence,
             }, {merge: true}).catch(err => console.log(err))
+            dispatch(refreshCards(true));
             navigate("/view");
         }else{
-            console.log("create")
             saveCard(topic, title, sourceName, sourceLink, contention, evidence, false);
         }
     }
