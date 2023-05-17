@@ -6,11 +6,21 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                'primary': '#2C3639',
-                'secondary': '#3F4E4F',
-                'tertiary': '#A27B5C',
-                'quaternary': '#DCD7C9',
+                'text': '#080807',
+                'background': '#e9ebe6',
+                'primary': '#545b49',
+                'secondary': '#d1d6c7',
+                'accent' : '#373b30'
             },
+
+            // colors: {
+            //     'text': '#d4d7f7',
+            //     'background': '#141a17',
+            //     'primary': '#3d9493',
+            //     'secondary': '#0d2b13',
+            //     'accent' : '#000000'
+            // },
+
             spacing: {
                 '19' : '76px',
                 '21' : '84px',

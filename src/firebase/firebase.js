@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import { getFirestore, collection, doc, setDoc, getDoc, query, where, getDocs, persistentLocalCache, persistentMultipleTabManager, initializeFirestore, CACHE_SIZE_UNLIMITED } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB4aCc_kQxND2WJUv1klAM2XQ-H__SBpME",
@@ -39,11 +40,11 @@ function handleSignOutClick(){
     auth.signOut();
 }
 
-function saveCard(topic, title, sourceName, sourceLink, contention, evidence, isStarred){
+async function saveCard(topic, title, sourceName, sourceLink, contention, evidence, isStarred){
     getDoc(doc(db, "public", "publicCards")).then((result) => {
         const id = parseInt(result.data().cardIDCounter) + 1;
         const cardID = id.toString();
-        if(!topic || !cardID || !title || !sourceName || !sourceLink || !evidence){
+        if(!topic || !cardID || !title || !sourceName || !sourceLink || !evidence || !contention){
             console.log("Empty fields")
             return;
         }
@@ -61,7 +62,7 @@ function saveCard(topic, title, sourceName, sourceLink, contention, evidence, is
             ownerUID: auth.currentUser.uid,
         }, {merge: true}).then(() => {
             setDoc(doc(db, "public", "publicCards"), {cardIDCounter: cardID}, {merge: true}).then(() => {
-                window.open("/view", "_self");
+                return;
             })
         })
     })

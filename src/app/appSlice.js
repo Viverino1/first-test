@@ -4,7 +4,7 @@ const initialState = {
   topics: [],
   cards: [],
   topic: "",
-  refreshCardsData: true,
+  isLoggedIn: false,
 }
 
 export const appSlice = createSlice({
@@ -21,17 +21,18 @@ export const appSlice = createSlice({
         state.topic = action.payload;
     },
     setCards(state, action){
+        state.cards.splice(0, state.cards.length);
         for(let i = 0; i < action.payload.length; i++){
             state.cards[i] = action.payload[i];
         }
     },
-    refreshCards(state, action){
-        state.refreshData = action.payload;
+    setIsLoggedIn(state, action){
+        state.isLoggedIn = action.payload;
     }
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { setTopic, setTopics, setCards, refreshCards } = appSlice.actions;
+export const { setTopic, setTopics, setCards, refreshCards, setIsLoggedIn } = appSlice.actions;
 
 export default appSlice.reducer;
