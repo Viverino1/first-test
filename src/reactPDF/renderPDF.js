@@ -45,27 +45,45 @@ import { useSelector } from "react-redux";
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
+    },
+    contentionText: {
+        fontSize: 16,
+        color: "#e9ebe6"
+    },
+    contentionSection: {
+        borderRadius: 4,
+        backgroundColor: "#545b49",
+        padding: 8,
+        margin: 8,
     }
   });
   
   // Create Document Component
 const RenderCase = () => {
     const cards = useSelector(state => state.app.cards);
+    const teamData = useSelector(state => state.app.teamData);
+
     return (
       <PDFViewer className="w-full">
         <Document>
-          <Page size="A4" style={styles.page}>
+            <Page size="A4" style={styles.page}>
                 <View style={styles.header}>
                     <Image src="./DebateToolLogo.png" style={styles.logo}></Image>
                     <Text>Debate Tool</Text>
                 </View>
-            {cards.map(card => (
-                <View key={card.cardID} style={styles.section}>
-                    <Text style={styles.title}>{card.title}</Text>
-                    <Link src={card.sourceLink} style={styles.link}>Source: {card.sourceName}</Link>
-                    <Text style={styles.evidence}>{card.evidence}</Text>
-                </View>
-            ))}
+                {teamData.contentions.map((contention, index) => (
+                    <View style={styles.contentionSection}>
+                        <Text style={styles.contentionText}>Contention {index + 1}</Text>
+                        <Text style={{fontSize: 12, color: "#e9ebe6"}}>{contention.name}</Text>
+                    </View>
+                ))}
+                {cards.map(card => (
+                    <View key={card.cardID} style={styles.section}>
+                        <Text style={styles.title}>{card.title}</Text>
+                        <Link src={card.sourceLink} style={styles.link}>Source: {card.sourceName}</Link>
+                        <Text style={styles.evidence}>{card.evidence}</Text>
+                    </View>
+                ))}
           </Page>
         </Document>
       </PDFViewer>

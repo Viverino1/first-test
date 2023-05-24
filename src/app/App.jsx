@@ -8,8 +8,8 @@ import Download from "../pages/download/Download";
 
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { setCards, setIsLoggedIn, setTopic, setTopics } from "./appSlice";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { setCards, setIsLoggedIn, setPublicCards, setTeamData, setTeamID, setTeamMembers, setTeamName, setTopic, setTopics } from "./appSlice";
+import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebase/firebase";
 
 const App = () => {
@@ -38,6 +38,13 @@ const App = () => {
 const GetData = () => {
     const dispatch = useDispatch();
     const topic = useSelector((state) => state.app.topic);
+    const showPublicCards = useSelector(state => state.app.showPublicCards);
+    const showTeamCards = useSelector(state => state.app.showTeamCards);
+    const publicCards = useSelector(state => state.app.publicCards);
+    const teamCards = useSelector(state => state.app.teamCards);
+    const isLoggedIn = useSelector(state => state.app.isLoggedIn);
+    const teamID = useSelector(state => state.app.teamID);
+    const teamData = useSelector(state => state.app.teamData);
 
     auth.onAuthStateChanged((user) => {dispatch(setIsLoggedIn( user? true : false))});
 
@@ -46,8 +53,38 @@ const GetData = () => {
             const data = result.data().topics;
             dispatch(setTopics(data));
             dispatch(setTopic(data[data.length - 1]))
-        })
+        });
     }, [])
+
+    useEffect(() => {
+        if(!isLoggedIn){return;}
+        getDoc(doc(db, "public", "publicData", "users", auth.currentUser.uid)).then(result => {
+            const data = result.data();
+            if(!data.hasOwnProperty("teamID")){
+                setDoc(doc(db, "public", "publicData", "users", auth.currentUser.uid), {teamID : ""}, {merge: true})
+            }else{
+                dispatch(setTeamID(data.teamID));
+            }
+        })
+    }, [isLoggedIn])
+
+    useEffect(() => {
+        if(!teamID){return;}
+        getDoc(doc(db, "teams", teamID, "teamData", topic)).then(result => {
+            const data = result.data();
+            dispatch(setTeamData(data? data : {contentions: []}));
+        });
+        getDoc(doc(db, "teams", teamID)).then(result => {
+            const data = result.data();
+            dispatch(setTeamName(data.teamName));
+            dispatch(setTeamMembers(data.members))
+        })
+    }, [teamID, topic]);
+
+    useEffect(() => {
+        if(!teamData || !teamID){return}
+        setDoc(doc(db, "teams", teamID, "teamData", topic), teamData, {merge: true})
+    }, [teamData])
 
     useEffect(() => {
         if(!topic){return}
@@ -57,13 +94,17 @@ const GetData = () => {
             docs.forEach(doc => {
                 cardsData.push(doc.data());
             })
-            dispatch(setCards(cardsData));
+            dispatch(setPublicCards(cardsData));
         })
     }, [topic])
 
-    return(
-        <></>
-    )
+    useEffect(() => {
+        const outputArr = new Array().concat(showPublicCards? publicCards : [], showTeamCards? teamCards : []);
+        dispatch(setCards(outputArr));
+    }, [showPublicCards, showTeamCards, publicCards, teamCards]);
+
+    return(null);   
 }
+
 
 export default App;
